@@ -1,0 +1,9 @@
+SGD
+├── lr = 0.05
+├── momentum = 0.9
+├── scheduler = CosineAnnealingLR
+└── weight_decay = 0
+
+Adam
+├── lr = 0.001
+└── weight_decay = 0
