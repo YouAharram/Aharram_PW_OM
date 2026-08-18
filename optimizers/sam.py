@@ -126,30 +126,39 @@ class SAMOptimizer(OptimizerInterface):
             eta=eta,
             rho=rho,
         )
-    
+
     def train_step(
-    self,
-    model: nn.Module,
-    images: torch.Tensor,
-    labels: torch.Tensor,
-    criterion: nn.Module,
+        self,
+        model: nn.Module,
+        images: torch.Tensor,
+        labels: torch.Tensor,
+        criterion: nn.Module,
     ):
         self.optimizer.zero_grad()
 
-    def closure():
-        self.optimizer.zero_grad()
+        def closure():
+            self.optimizer.zero_grad()
 
-        outputs = model(images)
+            outputs = model(images)
 
-        loss = criterion(
-            outputs,
-            labels,
-        )
+            loss = criterion(
+                outputs,
+                labels,
+            )
 
-        loss.backward()
+            loss.backward()
+
+            return loss
+
+        loss = self.optimizer.step(closure)
 
         return loss
 
-    loss = self.optimizer.step(closure)
+    def get_metrics(self):
+        return {
+            "n_forwards": self.optimizer.state["n_forwards"],
+            "n_backwards": self.optimizer.state["n_backwards"],
+        }
 
-    return loss
+    def get_lr(self):
+        return self.optimizer.eta

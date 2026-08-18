@@ -51,6 +51,7 @@ def train_one_epoch(
         correct / total,
     )
 
+
 def train(
     model: nn.Module,
     train_loader: DataLoader,
@@ -98,7 +99,6 @@ def train(
             device=device,
         )
 
-        # Model metrics
         history["model"]["train_loss"].append(
             train_loss
         )
@@ -127,15 +127,11 @@ def train(
             best_val_accuracy
         )
 
-        # Optimizer metrics
-        optimizer_metrics = optimizer.get_metrics()
-
-        history["optimizer"].update(
-            optimizer_metrics
-        )
+        current_lr = optimizer.get_lr()
 
         print(
             f"Epoch [{epoch + 1}/{epochs}] "
+            f"LR: {current_lr:.6f} "
             f"Train Loss: {train_loss:.4f} "
             f"Train Acc: {train_accuracy:.4f} "
             f"Val Loss: {val_loss:.4f} "
@@ -145,11 +141,17 @@ def train(
         if scheduler is not None:
             scheduler.step()
 
+    if best_state_dict is not None:
+        model.load_state_dict(
+            best_state_dict
+        )
+
+    history["optimizer"].update(
+        optimizer.get_metrics()
+    )
+
     history["optimizer"]["training_time"] = (
         time.perf_counter() - start_time
     )
-
-    if best_state_dict is not None:
-        model.load_state_dict(best_state_dict)
 
     return history

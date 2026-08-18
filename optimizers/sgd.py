@@ -3,6 +3,11 @@ import torch.nn as nn
 
 from .base import OptimizerInterface
 
+import torch
+import torch.nn as nn
+
+from .base import OptimizerInterface
+
 
 class SGDOptimizer(OptimizerInterface):
 
@@ -31,15 +36,29 @@ class SGDOptimizer(OptimizerInterface):
         criterion: nn.Module,
     ):
         self.optimizer.zero_grad()
-    
+
         outputs = model(images)
+
         self.n_forwards += 1
-    
-        loss = criterion(outputs, labels)
-    
+
+        loss = criterion(
+            outputs,
+            labels,
+        )
+
         loss.backward()
+
         self.n_backwards += 1
-    
+
         self.optimizer.step()
-    
+
         return loss
+
+    def get_metrics(self):
+        return {
+            "n_forwards": self.n_forwards,
+            "n_backwards": self.n_backwards,
+        }
+
+    def get_lr(self):
+        return self.optimizer.param_groups[0]["lr"]

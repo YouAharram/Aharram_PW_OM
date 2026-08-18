@@ -40,10 +40,13 @@ class AdamOptimizer(OptimizerInterface):
 
         self.optimizer.step()
 
-        return loss, outputs
+        return loss
 
     def get_metrics(self):
         return {
             "n_forwards": self.n_forwards,
             "n_backwards": self.n_backwards,
         }
+
+    def get_lr(self):
+        return self.optimizer.param_groups[0]["lr"]
